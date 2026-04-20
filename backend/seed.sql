@@ -1,0 +1,3 @@
+-- Phase 3 — fill this in after schema.sql is complete.
+-- Aim for 3–5 rows per table covering the happy path and at least one edge
+-- case per user story. Use concrete domain vocabulary, not placeholder names.

@@ -1,0 +1,4 @@
+-- Phase 3 — fill this in based on docs/02-data-model.md.
+-- The backend applies this file on startup if app.db does not exist.
+-- Add every entity from the model, with primary keys, foreign keys, uniqueness
+-- constraints, and CHECK constraints as the model specifies.

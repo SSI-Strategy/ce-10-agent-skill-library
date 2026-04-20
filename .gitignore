@@ -1,0 +1,18 @@
+# python
+__pycache__/
+*.pyc
+.venv/
+.uv/
+
+# node
+node_modules/
+dist/
+coverage/
+
+# SQLite DB (created on first run)
+backend/app.db
+
+# editor & OS
+.DS_Store
+.vscode/
+.idea/
