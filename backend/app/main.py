@@ -1,16 +1,13 @@
-"""FastAPI entrypoint for the Agent Skill Library assignment.
-
-This is a skeleton. As you work through the workflow phases, you will add
-schema, endpoints, and Pydantic models under this package. The only thing
-that ships with the template is a health endpoint and automatic application
-of schema.sql on startup when the database file does not exist.
-"""
 from __future__ import annotations
 
 import sqlite3
+from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import AsyncGenerator
 
 from fastapi import FastAPI
+
+from app.routers import auth, skills, tags
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 DB_PATH = BACKEND_DIR / "app.db"
@@ -36,19 +33,29 @@ def _init_db_if_missing() -> None:
         conn.close()
 
 
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
+    _init_db_if_missing()
+    yield
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title="Agent Skill Library",
-    description="Capability Engineer starter assignment 10 of 10.",
+    description=(
+        "Internal catalogue of Claude agent skills. "
+        "Regular users can search and browse without authentication. "
+        "Admin endpoints require a Bearer token from POST /api/auth/login."
+    ),
     version="0.1.0",
 )
 
-
-@app.on_event("startup")
-def on_startup() -> None:
-    _init_db_if_missing()
+app.include_router(auth.router)
+app.include_router(skills.router)
+app.include_router(tags.router)
 
 
 @app.get("/api/health", summary="Health check", tags=["health"])
 def health() -> dict[str, str]:
-    """Return OK if the backend is up. Used by tests and smoke checks."""
+    """Return OK if the backend is up."""
     return {"status": "ok"}

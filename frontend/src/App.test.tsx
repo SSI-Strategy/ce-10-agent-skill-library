@@ -1,21 +1,38 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import * as api from "./api/client";
 import App from "./App";
+import type { SkillSummary, TagOut } from "./api/types";
 
-describe("App", () => {
+vi.mock("./api/client");
+
+const mockTags: TagOut[] = [];
+const mockSkills: SkillSummary[] = [];
+
+describe("App routing", () => {
   beforeEach(() => {
-    vi.restoreAllMocks();
+    vi.mocked(api.listTags).mockResolvedValue(mockTags);
+    vi.mocked(api.listSkills).mockResolvedValue(mockSkills);
   });
 
-  it("renders the title", () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({ status: "ok" }),
-      }),
+  it("renders the catalogue page at /", async () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <App />
+      </MemoryRouter>
     );
-    render(<App />);
-    expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { name: /agent skill library/i })).toBeInTheDocument()
+    );
+  });
+
+  it("renders the admin login form at /admin", () => {
+    render(
+      <MemoryRouter initialEntries={["/admin"]}>
+        <App />
+      </MemoryRouter>
+    );
+    expect(screen.getByRole("heading", { name: /admin login/i })).toBeInTheDocument();
   });
 });
